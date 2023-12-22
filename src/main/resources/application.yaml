@@ -1,0 +1,31 @@
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.hibernate: INFO
+    com.netology.diploma.loikokate: DEBUG
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: mysql
+    url: jdbc:mysql://localhost:3306/diploma
+    username: root
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      dialect: MySQL8Dialect
+      format_sql: true
+      globally_quoted_identifiers: true
+    show-sql: true
+  liquibase:
+    enabled: false
+    drop-first: false
+    default-schema: public
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  config:
+    activate:
+      on-profile: docker
+
+my-storage-directory: /Users/ekaterinalojko/diplomaStorage/
+front-address: http://localhost:8081
+

@@ -1,0 +1,14 @@
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.hibernate: INFO
+    com.netology.diploma.loikokate: DEBUG
+spring:
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    password: mysql
+    url: jdbc:tc:mysql:8.0:///diploma?user=root?password=mysql
+    username: root
+my-storage-directory: /Users/ekaterinalojko/diplomaStorage/
+front-address: http://localhost:8081
+

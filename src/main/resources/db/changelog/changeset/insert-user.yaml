@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-user #текстовый идентификатор (Обязателен)
+      author: Ekaterina Loiko
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: login
+                  value: user
+              - column:
+                  name: password
+                  value: qwerty
+              - column:
+                  name: auth_token
+                  value: 5bf82eab207b54ffdf3a980ddf668aeb

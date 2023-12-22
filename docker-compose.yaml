@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  dtbase:
+    container_name: 'dtbase'
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./infrastructure/db/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
+    restart: always
+
+  app:
+    build: ./
+    image: "diplomaapp:0.1"
+    ports:
+      - '8080:8080'
+    depends_on:
+      - dtbase
+    links:
+      - dtbase
+    environment:
+          - SPRING_DATASOURCE_URL=jdbc:mysql://dtbase:3306/diploma
+          - SPRING_DATASOURCE_USERNAME=root
+          - SPRING_DATASOURCE_PASSWORD=mysql
+          - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
+          - SPRING_JPA_HIBERNATE_DDL-AUTO=none
+          - SPRING_JPA_SHOW-SQL= true
+          - my-storage-directory=/Users/ekaterinalojko/diplomaStorage/
+          - front-address=http://localhost:8081
+          - SPRING_LIQUIBASE_ENABLED=true
+          - SPRING_LIQUIBASE_DROP-FIRST=false
+          - SPRING_LIQUIBASE_DEFAULT-SCHEMA=diploma
+    volumes:
+      - file-storage:/Users/ekaterinalojko/diplomaStorage/
+    restart: always
+
+volumes:
+  file-storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /Users/ekaterinalojko/diplomaStorage/
+
