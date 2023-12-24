@@ -31,22 +31,20 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
+        log.debug("Authentication");
         if (request.getRequestURI().equals("/login")) {
+            log.debug("Login request");
             filterChain.doFilter(request, response);
             return;
         }
 
-//        if (request.getRequestURI().equals("/logout")) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
-
+        log.debug("Get cookies");
         Cookie cookie = Arrays.stream(request.getCookies()).filter(c -> c.getName().equals("auth-token")).findAny().orElse(null);
         if (cookie == null) {
             throw new UserNotFoundException("No token");
         }
 
+        log.debug("Get user");
         UserEntity user = loginService.isTokenValid(cookie.getValue());
         if (user == null) {
             throw new UserNotFoundException("Invalid token");

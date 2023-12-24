@@ -1,5 +1,6 @@
 package com.netology.diploma.loikokate.diplomabackend.controller;
 
+import com.netology.diploma.loikokate.diplomabackend.dao.FileEntity;
 import com.netology.diploma.loikokate.diplomabackend.dto.file.FileDTO;
 import com.netology.diploma.loikokate.diplomabackend.dto.list.ListRequest;
 import com.netology.diploma.loikokate.diplomabackend.service.FileService;
@@ -26,7 +27,10 @@ public class ListController {
     public List<FileDTO> list(ListRequest listRequest) {
         log.debug("listRequest " + listRequest);
         if (listRequest.getLimit() != null) {
-            return fileService.getFiles(listRequest.getLimit());
+            List<FileEntity> entities = fileService.getFiles(listRequest.getLimit());
+            List<FileDTO> result = new ArrayList<>();
+            entities.stream().forEach(e -> result.add(new FileDTO(e.getFilename(), e.getSize())));
+            return result;
         } else {
             return new ArrayList<>();
         }

@@ -12,5 +12,6 @@ public class LogoutController {
 
     @PostMapping
     public void logout() {
+        log.debug("Logout");
     }
 }

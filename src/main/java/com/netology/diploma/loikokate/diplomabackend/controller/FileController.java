@@ -1,5 +1,6 @@
 package com.netology.diploma.loikokate.diplomabackend.controller;
 
+import com.netology.diploma.loikokate.diplomabackend.dao.FileEntity;
 import com.netology.diploma.loikokate.diplomabackend.dto.file.FileDTO;
 import com.netology.diploma.loikokate.diplomabackend.dto.file.FileRequest;
 import com.netology.diploma.loikokate.diplomabackend.service.FileService;
@@ -38,6 +39,7 @@ public class FileController {
     @PutMapping
     public FileDTO editFile(@RequestParam String filename, @RequestBody FileRequest fileRequest) {
         log.debug("editing file " + filename + " to " + fileRequest.getFilename());
-        return fileService.editFile(filename, fileRequest);
+        FileEntity fileEntity = fileService.editFile(filename, fileRequest);
+        return new FileDTO(fileEntity.getFilename(), fileEntity.getSize());
     }
 }

@@ -1,12 +1,12 @@
 package com.netology.diploma.loikokate.diplomabackend.service.impl;
 
 import com.netology.diploma.loikokate.diplomabackend.dao.FileEntity;
-import com.netology.diploma.loikokate.diplomabackend.dto.file.FileDTO;
 import com.netology.diploma.loikokate.diplomabackend.dto.file.FileRequest;
 import com.netology.diploma.loikokate.diplomabackend.exception.StorageException;
 import com.netology.diploma.loikokate.diplomabackend.repository.FileRepository;
 import com.netology.diploma.loikokate.diplomabackend.service.FileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -21,11 +21,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FileServiceImpl implements FileService {
 
     private final FileRepository fileRepository;
@@ -36,6 +36,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void saveFile(FileRequest fileRequest) {
+        log.debug("Save file with name " + fileRequest.getFilename());
         storeFileOnDisk(fileRequest.getFile());
 
         FileEntity fileEntity = FileEntity.builder()
@@ -46,36 +47,34 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<FileDTO> getFiles(Integer limit) {
+    public List<FileEntity> getFiles(Integer limit) {
+        log.debug("Get list of files with limit " + limit);
         Pageable firstPageWithLimit = PageRequest.of(0, limit);
-        List<FileEntity> entities = fileRepository.findByOrderByIdDesc(firstPageWithLimit);
-
-        List<FileDTO> result = new ArrayList<>();
-        entities.stream().forEach(e -> result.add(new FileDTO(e.getFilename(), e.getSize())));
-
-        return result;
+        return fileRepository.findByOrderByIdDesc(firstPageWithLimit);
     }
 
     @Override
     @Transactional
     public void deleteFile(FileRequest fileRequest) {
+        log.debug("Delete file with name " + fileRequest.getFilename());
         removeFromStorage(fileRequest.getFilename());
 
         fileRepository.deleteByFilename(fileRequest.getFilename());
     }
 
     @Override
-    public FileDTO editFile(String originalFilename, FileRequest fileRequest) {
+    public FileEntity editFile(String originalFilename, FileRequest fileRequest) {
+        log.debug(String.format("Edit file with name %s to %s in storage", originalFilename, fileRequest.getFilename()));
         renameInStorage(originalFilename, fileRequest.getFilename());
 
         FileEntity fileEntity = fileRepository.findByFilename(originalFilename);
         fileEntity.setFilename(fileRequest.getFilename());
         fileRepository.save(fileEntity);
-
-        return new FileDTO(fileEntity.getFilename(), fileEntity.getSize());
+        return fileEntity;
     }
 
     private void renameInStorage(String originalFilename, String newFilename) {
+        log.debug(String.format("Rename file with name %s to %s in storage", originalFilename, newFilename));
         Path originalPath = Path.of(storageDir, originalFilename);
         Path newPath = Path.of(storageDir, newFilename);
 
@@ -87,6 +86,7 @@ public class FileServiceImpl implements FileService {
     }
 
     private void removeFromStorage(String filename) {
+        log.debug("Delete file from storage with name " + filename);
         Path target = Path.of(storageDir, filename);
         try {
             Files.delete(target);
@@ -96,6 +96,7 @@ public class FileServiceImpl implements FileService {
     }
 
     private void storeFileOnDisk(MultipartFile file) {
+        log.debug("Save file to storage with name " + file.getOriginalFilename());
         try {
             Path target = Path.of(storageDir, file.getOriginalFilename());
             try (InputStream inputStream = file.getInputStream()) {
@@ -109,6 +110,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public Resource downloadFile(FileRequest fileRequest) {
+        log.debug("Download file with name " + fileRequest.getFilename());
         Path target = Path.of(storageDir, fileRequest.getFilename());
 
         ByteArrayResource resource;

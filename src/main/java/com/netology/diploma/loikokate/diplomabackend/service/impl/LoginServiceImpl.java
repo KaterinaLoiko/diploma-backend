@@ -19,6 +19,8 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public LoginResponse authenticate(LoginRequest loginRequest) {
+        log.debug(String.format("Authentication with login %s and password %s",
+                loginRequest.getLogin(), loginRequest.getPassword()));
         UserEntity user = userRepository.findByLoginAndPassword(loginRequest.getLogin(), loginRequest.getPassword());
         if (user == null) {
             throw new UserNotFoundException("User not found");
@@ -29,6 +31,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public UserEntity isTokenValid(String token) {
+        log.debug("Get user from db with token " + token);
         return userRepository.findByAuthToken(token);
     }
 }

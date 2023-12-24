@@ -20,6 +20,7 @@ public class LoginController {
 
     @PostMapping
     public LoginResponse login(@RequestBody LoginRequest loginRequest) {
+        log.debug("Login " + loginRequest);
         return loginService.authenticate(loginRequest);
     }
 }
